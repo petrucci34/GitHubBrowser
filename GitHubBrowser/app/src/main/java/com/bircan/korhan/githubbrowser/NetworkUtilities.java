@@ -1,6 +1,7 @@
 package com.bircan.korhan.githubbrowser;
 
 import android.net.Uri;
+import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,7 @@ import java.util.Scanner;
  * Created by ftq194 on 3/13/17.
  */
 
-public class NetworkUtilities {
+public class NetworkUtilities extends AsyncTask<URL, Void, String> {
     final static String GITHUB_BASE_URL = "https://api.github.com/search/repositories";
     final static String PARAM_QUERY = "q";
     final static String PARAM_SORT = "sort";
@@ -46,7 +47,7 @@ public class NetworkUtilities {
      * @return The HTTP response as a string.
      * @throws IOException
      */
-    public static String stringResponseFrom(URL url) throws IOException {
+    private static String stringResponseFrom(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
         try {
             InputStream inputStream = urlConnection.getInputStream();
@@ -62,5 +63,28 @@ public class NetworkUtilities {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+    }
+
+    @Override
+    protected String doInBackground(URL... params) {
+        URL searchURL = params[0];
+        String searchResults = null;
+        try {
+            searchResults = NetworkUtilities.stringResponseFrom(searchURL);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        return  searchResults;
+    }
+
+    @Override
+    protected void onPostExecute(String searchResults) {
+
     }
 }
