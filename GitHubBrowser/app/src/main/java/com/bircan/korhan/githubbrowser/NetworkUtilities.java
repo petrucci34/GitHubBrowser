@@ -1,24 +1,36 @@
 package com.bircan.korhan.githubbrowser;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
 
 /**
  * Created by ftq194 on 3/13/17.
  */
 
-public class NetworkUtilities extends AsyncTask<URL, Void, String> {
+public class NetworkUtilities {
     final static String GITHUB_BASE_URL = "https://api.github.com/search/repositories";
     final static String PARAM_QUERY = "q";
     final static String PARAM_SORT = "sort";
     final static String SORTY_BY = "stars";
+    private static AsyncHttpClient client = new AsyncHttpClient();
+
+    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.get(getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.post(getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    private static String getAbsoluteUrl(String relativeUrl) {
+        return GITHUB_BASE_URL + relativeUrl;
+    }
 
     /**
      * Method that returns a search URL with the given keyword.
@@ -39,52 +51,5 @@ public class NetworkUtilities extends AsyncTask<URL, Void, String> {
         }
 
         return url;
-    }
-
-    /**
-     * Method to return HTTP response as a string.
-     * @param url The URL to get the HTTP response from.
-     * @return The HTTP response as a string.
-     * @throws IOException
-     */
-    private static String stringResponseFrom(URL url) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
-        try {
-            InputStream inputStream = urlConnection.getInputStream();
-            Scanner scanner = new Scanner(inputStream);
-            scanner.useDelimiter("\\A");
-
-            boolean hasNext = scanner.hasNext();
-            if (hasNext) {
-                return scanner.next();
-            } else {
-                return null;
-            }
-        } finally {
-            urlConnection.disconnect();
-        }
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-    @Override
-    protected String doInBackground(URL... params) {
-        URL searchURL = params[0];
-        String searchResults = null;
-        try {
-            searchResults = NetworkUtilities.stringResponseFrom(searchURL);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-
-        return  searchResults;
-    }
-
-    @Override
-    protected void onPostExecute(String searchResults) {
-
     }
 }
